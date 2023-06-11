@@ -2,6 +2,8 @@ const path = require("path");
 
 const User = require("../model/user");
 
+// POST || postAddUserData
+
 const postAddUserData = async (req, res) => {
   try {
     const { fName, lName, email, number, gender, status, location } = req.body;
@@ -40,6 +42,8 @@ const postAddUserData = async (req, res) => {
   }
 };
 
+// GET || getUserData
+
 const getUserData = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -47,7 +51,11 @@ const getUserData = async (req, res) => {
     const search = req.query.search || "";
     const query = {};
     if (search !== "") {
-      query.email = { $regex: new RegExp(`^${search}.*`, "i") };
+      query.$or = [
+        { email: { $regex: new RegExp(`^${search}.*`, "i") } },
+        { fName: { $regex: new RegExp(`^${search}.*`, "i") } },
+        { lName: { $regex: new RegExp(`^${search}.*`, "i") } }
+      ];
     }
     const users = await User.find(query)
       .skip((page - 1) * limit)
@@ -67,6 +75,8 @@ const getUserData = async (req, res) => {
   }
 };
 
+// GET || getEditUserData
+
 const getEditUserData = async (req, res) => {
   try {
     const userId = req.query.userId || "";
@@ -85,6 +95,8 @@ const getEditUserData = async (req, res) => {
     });
   }
 };
+
+// POST || postEditUserData
 
 const postEditUserData = async (req, res) => {
   try {
@@ -126,6 +138,8 @@ const postEditUserData = async (req, res) => {
   }
 };
 
+// DELETE || deleteUserData
+
 const deleteUserData = async (req, res) => {
   try {
     let user = await User.findByIdAndRemove(req.query.id);
@@ -146,42 +160,48 @@ const deleteUserData = async (req, res) => {
   }
 };
 
+// GET || getSingleUserDetails
 
 const getSingleUserDetails = async (req, res) => {
-  try{
-const user = await User.findById(req.query.id)
-if(user) {
-  res
-  .status(201)
-  .json({user, success: true, });
-}else {
-  res.status(200).json({ success: false, message: "User not found" });
-}
-
-} catch (error) {
-  console.log(error);
-  res.status(500).json({
-    success: false,
-    message: `getSingleUserDetails  controller ${error.message}`,
-  });
-}
-}
-
-const  pachActiveUserStatus = async( req,res) => {
   try {
-  console.log(req.query.id,"activ");
-    
-    const user = await User.findByIdAndUpdate({_id:req.query.id},{$set:{
-      status:"Active"
-    }},{new:true})
-    if(user) {
-      res
-      .status(201)
-      .json({ success: true,message: `${user.fName} status successfully activated`  });
-    }else {
+    const user = await User.findById(req.query.id);
+    if (user) {
+      res.status(201).json({ user, success: true });
+    } else {
       res.status(200).json({ success: false, message: "User not found" });
     }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: `getSingleUserDetails  controller ${error.message}`,
+    });
+  }
+};
 
+// PATCH || pachActiveUserStatus
+
+const pachActiveUserStatus = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      { _id: req.query.id },
+      {
+        $set: {
+          status: "Active",
+        },
+      },
+      { new: true }
+    );
+    if (user) {
+      res
+        .status(201)
+        .json({
+          success: true,
+          message: `${user.fName} status successfully activated`,
+        });
+    } else {
+      res.status(200).json({ success: false, message: "User not found" });
+    }
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -189,31 +209,39 @@ const  pachActiveUserStatus = async( req,res) => {
       message: `pachActiveUserStatus  controller ${error.message}`,
     });
   }
-}
+};
 
-const pachInActiveUserStatus = async(req,res) => {
-try {
-  console.log(req.query.id,"inactiv");
-  const user = await User.findByIdAndUpdate({_id:req.query.id},{$set:{
-    status:"InActive"
-  }},{new:true})
-  if(user) {
-    res
-    .status(201)
-    .json({ success: true,message: `${user.fName} status successfully inactivated`  });
-  }else {
-    res.status(200).json({ success: false, message: "User not found" });
+// PATCH || pachInActiveUserStatus
+
+const pachInActiveUserStatus = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      { _id: req.query.id },
+      {
+        $set: {
+          status: "InActive",
+        },
+      },
+      { new: true }
+    );
+    if (user) {
+      res
+        .status(201)
+        .json({
+          success: true,
+          message: `${user.fName} status successfully inactivated`,
+        });
+    } else {
+      res.status(200).json({ success: false, message: "User not found" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: `pachActiveUserStatus  controller ${error.message}`,
+    });
   }
-} catch (error) {
-  console.log(error);
-  res.status(500).json({
-    success: false,
-    message: `pachActiveUserStatus  controller ${error.message}`,
-  });
-}
-
-}
-
+};
 
 module.exports = {
   postAddUserData,
@@ -223,5 +251,5 @@ module.exports = {
   deleteUserData,
   getSingleUserDetails,
   pachActiveUserStatus,
-  pachInActiveUserStatus
+  pachInActiveUserStatus,
 };
