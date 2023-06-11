@@ -7,7 +7,9 @@ const {
   getEditUserData,
   postEditUserData,
   deleteUserData,
-  getSingleUserDetails
+  getSingleUserDetails,
+  pachActiveUserStatus,
+  pachInActiveUserStatus
   } = require("../controller/userController");
 
   // router object
@@ -21,6 +23,10 @@ const {
   router.get("/view-UserDetails",getSingleUserDetails)
   
   router.delete("/delet-UserData",deleteUserData)
+
+  router.patch("/update-activeUserStatus",pachActiveUserStatus)
+  router.patch("/update-inActiveUserStatus",pachInActiveUserStatus)
+
 
 
 
