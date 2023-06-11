@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
-// const url =  process.env.MONGO_DB_DATABASE_CLUSTER 
-const url = process.env.MONGO_DB_DATABASE_STRING
+const url =  process.env.MONGO_DB_DATABASE_CLUSTER 
+// const url = process.env.MONGO_DB_DATABASE_STRING
 
 const connect = mongoose.connect(url,{
     useNewUrlParser:true,
